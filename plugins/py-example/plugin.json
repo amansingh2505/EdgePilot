@@ -1,0 +1,14 @@
+﻿{
+  "id": "org.edgepilot.py-example",
+  "name": "PY Example Plugin",
+  "version": "0.1.0",
+  "description": "Python example plugin with lifecycle hooks",
+  "author": "EdgePilot",
+  "language": "python",
+  "entry": "plugin.py",
+  "capabilities": ["echo"],
+  "permissions": ["none"],
+  "tools": [
+    { "id": "example.echo", "name": "Echo", "description": "Echo input back", "input_schema": {"type":"object"}, "output_schema": {"type":"object"} }
+  ]
+}
