@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "edgepilot-runtime",
   "version": "0.1.0",
   "private": true,
@@ -6,6 +6,7 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/examples/run-example.js",
     "start:workflow": "node dist/examples/run-workflow.js",
+    "start:e2e-demo": "node dist/examples/run-e2e-demo.js",
     "lint": "eslint . --ext .ts",
     "test": "echo \"No tests yet\" && exit 0"
   },
@@ -14,5 +15,9 @@
     "js-yaml": "^4.1.0",
     "lodash.get": "^4.4.2",
     "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.2",
+    "@types/uuid": "^10.0.0"
   }
 }
