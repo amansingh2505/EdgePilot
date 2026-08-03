@@ -1,7 +1,8 @@
 ﻿import { PluginManager } from "./plugin-manager";
 import { Validator, ValidationResult } from "./validator";
 import { Logger } from "./logger";
-import { ToolResult, ToolContext, PluginManifest, ToolDefinition } from "./types";
+import { ToolResult, ToolContext, ToolDefinition } from "./types";
+import { PermissionManager } from './permission-manager';
 
 export interface ExecutionRequest {
   pluginId: string;
@@ -24,6 +25,7 @@ export class RuntimeEngine {
     private plugins: PluginManager,
     private validator: Validator,
     private logger: Logger,
+    private permissions: PermissionManager,
     private runtimeVersion = '0.1.0'
   ) {}
 
@@ -32,8 +34,17 @@ export class RuntimeEngine {
     try {
       const plugin = this.plugins.getPlugin(pluginId);
       if (!plugin) return { success: false, error: `Plugin ${pluginId} not found` };
-      const def = plugin.manifest.tools.find(t => t.id === toolId) as ToolDefinition | undefined;
+      const def = (plugin.manifest.tools || []).find((t: ToolDefinition) => t.id === toolId) as ToolDefinition | undefined;
       if (!def) return { success: false, error: `Tool ${toolId} not found in plugin ${pluginId}` };
+
+      // permission check: union of plugin-level and tool-level permissions
+      const required = new Set<string>();
+      (plugin.manifest.permissions || []).forEach((p: string) => required.add(p));
+      (def.permissions || []).forEach((p: string) => required.add(p));
+      const requiredArr = Array.from(required).filter(r => r && r !== 'none');
+      if (requiredArr.length > 0 && !this.permissions.hasPermissions(pluginId, requiredArr)) {
+        return { success: false, error: 'permission_denied' };
+      }
 
       // validate input
       const inputValidation = this.validator.validate(def.input_schema, args);

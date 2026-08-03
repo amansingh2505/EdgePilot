@@ -1,31 +1,38 @@
-﻿import { Plugin, PluginManifest, ToolDefinition } from "./types";
+﻿import { PluginManifest } from "./types";
 import { ConsoleLogger } from "./logger";
 
+export type PluginWrapper = {
+  manifest: PluginManifest;
+  module?: any;
+  tools: any[];
+  initialize?: Function;
+  shutdown?: Function;
+};
+
 export class PluginManager {
-  private plugins: Map<string, Plugin> = new Map();
+  private plugins: Map<string, PluginWrapper> = new Map();
   private logger = new ConsoleLogger();
 
-  register(plugin: Plugin) {
-    const id = plugin.manifest.id;
+  register(wrapper: PluginWrapper) {
+    const id = wrapper.manifest?.id;
     if (!id) throw new Error('Plugin manifest must contain id');
     if (this.plugins.has(id)) throw new Error(`Plugin ${id} already registered`);
-    // basic sanity checks
-    if (!Array.isArray(plugin.manifest.tools)) throw new Error('Plugin manifest.tools must be an array');
-    this.plugins.set(id, plugin);
+    if (!Array.isArray(wrapper.tools)) throw new Error('Plugin wrapper.tools must be an array');
+    this.plugins.set(id, wrapper);
     this.logger.info(`Registered plugin ${id}`);
     return id;
   }
 
-  getPlugin(pluginId: string): Plugin | undefined {
+  getPlugin(pluginId: string): PluginWrapper | undefined {
     return this.plugins.get(pluginId);
   }
 
   getTool(pluginId: string, toolId: string): any | undefined {
     const plugin = this.plugins.get(pluginId);
     if (!plugin) return undefined;
-    // tools might be objects with id or functions; normalize
+    // tools are objects with id and execute function or simple callables
     for (const t of plugin.tools) {
-      if ((t as any).id === toolId) return t;
+      if (t && (t.id === toolId || t.id === `${pluginId}.${toolId}`)) return t;
     }
     return undefined;
   }
