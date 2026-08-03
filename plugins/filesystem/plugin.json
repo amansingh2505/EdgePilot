@@ -1,0 +1,23 @@
+﻿{
+  "id": "org.edgepilot.filesystem",
+  "name": "EdgePilot FileSystem Plugin",
+  "version": "0.1.0",
+  "description": "Cross-platform filesystem utilities: list, read, write, append, copy, move, delete, search, metadata",
+  "author": "EdgePilot",
+  "language": "node",
+  "entry": "index.js",
+  "capabilities": ["filesystem"],
+  "permissions": ["filesystem"],
+  "tools": [
+    { "id": "fs.list", "name": "List Directory", "description": "List directory contents", "input_schema": { "type": "object", "properties": { "path": { "type": "string" }, "recursive": { "type": "boolean" }, "includeHidden": { "type": "boolean" } } } },
+    { "id": "fs.read", "name": "Read File", "description": "Read file contents", "input_schema": { "type": "object", "required": ["path"], "properties": { "path": { "type": "string" }, "encoding": { "type": "string", "enum": ["utf8","base64"] } } } },
+    { "id": "fs.write", "name": "Write File", "description": "Write file content (overwrites by default)", "input_schema": { "type": "object", "required": ["path","content"], "properties": { "path": { "type": "string" }, "content": { }, "encoding": { "type": "string", "enum": ["utf8","base64"] }, "overwrite": { "type": "boolean" } } } },
+    { "id": "fs.append", "name": "Append File", "description": "Append content to a file", "input_schema": { "type": "object", "required": ["path","content"], "properties": { "path": { "type": "string" }, "content": { }, "encoding": { "type": "string", "enum": ["utf8","base64"] } } } },
+    { "id": "fs.mkdir", "name": "Create Directory", "description": "Create directory (recursive)", "input_schema": { "type": "object", "required": ["path"], "properties": { "path": { "type": "string" } } } },
+    { "id": "fs.delete", "name": "Delete Path", "description": "Delete file or directory", "input_schema": { "type": "object", "required": ["path"], "properties": { "path": { "type": "string" }, "recursive": { "type": "boolean" } } } },
+    { "id": "fs.copy", "name": "Copy File", "description": "Copy file or directory", "input_schema": { "type": "object", "required": ["src","dest"], "properties": { "src": { "type": "string" }, "dest": { "type": "string" }, "overwrite": { "type": "boolean" } } } },
+    { "id": "fs.move", "name": "Move/Rename", "description": "Move or rename file/directory", "input_schema": { "type": "object", "required": ["src","dest"], "properties": { "src": { "type": "string" }, "dest": { "type": "string" } } } },
+    { "id": "fs.search", "name": "Search Files", "description": "Search files by name, extension, or pattern (regex)", "input_schema": { "type": "object", "required": ["pattern"], "properties": { "pattern": { "type": "string" }, "path": { "type": "string" }, "maxResults": { "type": "integer" } } } },
+    { "id": "fs.metadata", "name": "File Metadata", "description": "Get file metadata (size, timestamps, mode)", "input_schema": { "type": "object", "required": ["path"], "properties": { "path": { "type": "string" } } } }
+  ]
+}

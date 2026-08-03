@@ -1,11 +1,11 @@
-﻿import { StepDefinition, ExecutionEvent } from '../workflow/types';
-import { IToolExecutor } from './executor_interfaces';
-import { WorkflowContext } from './context';
+import { StepDefinition, ExecutionEvent } from '../types';
+import { IToolExecutor } from '../executor_interfaces';
+import { WorkflowContext } from '../context';
 
 function sleep(ms: number) { return new Promise(r => setTimeout(r, ms)); }
 
 export class TaskStepExecutor {
-  constructor(private toolExecutor: IToolExecutor, private historyAppend: (ev: ExecutionEvent)=>Promise<void>) {}
+  constructor(private toolExecutor: IToolExecutor, private historyAppend: (ev: ExecutionEvent)=>void | Promise<void>) {}
 
   private async runWithRetries(fn: ()=>Promise<any>, retries?: any) {
     const attempts = retries?.attempts ?? 1;
