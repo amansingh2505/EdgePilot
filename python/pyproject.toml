@@ -1,0 +1,7 @@
+﻿[build-system]
+requires = []
+
+[project]
+name = "edgepilot-python-tools"
+version = "0.1.0"
+description = "Python tools and adapters for EdgePilot"
