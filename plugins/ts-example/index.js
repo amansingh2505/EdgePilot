@@ -12,23 +12,9 @@ const exampleTool = {
         return await exampleTool.run(args);
     }
 };
+const manifest = require('./plugin.json');
 const wrapper = {
-    manifest: {
-        id: "ts-example",
-        name: "TS Example Plugin",
-        version: "0.1.0",
-        description: "Example plugin for EdgePilot runtime",
-        permissions: [],
-        tools: [
-            {
-                id: "example.echo",
-                name: "Echo Tool (TS)",
-                input_schema: null,
-                output_schema: null,
-                permissions: []
-            }
-        ]
-    },
+    manifest,
     tools: [exampleTool],
     module: {},
     initialize: async () => {},
