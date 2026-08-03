@@ -1,0 +1,6 @@
+{
+  "id": "ts-example",
+  "name": "TS Example Plugin",
+  "version": "0.1.0",
+  "description": "Example plugin for EdgePilot runtime"
+}
