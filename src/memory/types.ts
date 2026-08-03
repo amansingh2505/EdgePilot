@@ -27,6 +27,14 @@ export interface MemoryContextIds {
   sessionId?: string;
 }
 
+export interface MemoryManagerInterface {
+  session(sessionId: string): VariableStore;
+  conversation(conversationId: string): VariableStore;
+  workflow(workflowId: string): VariableStore;
+  global(): VariableStore;
+  context(ids: MemoryContextIds): MemoryContext;
+}
+
 export interface StorageInterface {
   put(scope: ScopeType, id: string, key: string, value: any, ttlMs?: number | null): Promise<void>;
   get(scope: ScopeType, id: string, key: string): Promise<any | undefined>;

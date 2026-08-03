@@ -1,10 +1,12 @@
 ﻿import { WorkflowDefinition } from "../workflow/types";
+import { MemoryContextIds } from "../memory/types";
 
 export interface PlanningRequest {
   userId?: string;
   prompt: string;
   constraints?: { [k: string]: any };
   preferredPlugins?: string[];
+  memoryContextIds?: MemoryContextIds;
 }
 
 export interface PlanStep {

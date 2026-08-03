@@ -37,6 +37,7 @@ const { PermissionManager } = require('../runtime/permission-manager');
 const { PlannerManager } = require('../planner/planner-manager');
 const { SimpleRulePlanner } = require('../planner/simple-rule-planner');
 const { ToolCapabilityResolver } = require('../planner/tool-capability-resolver');
+const { MemoryManager } = require('../memory/memory-manager');
 
 // Import workflow components
 const { WorkflowExecutor } = require('../workflow/executor');
@@ -48,6 +49,7 @@ class EdgePilotE2EDemo {
     this.pluginManager = new PluginManager();
     this.validator = new AjvOptionalValidator();
     this.permissionManager = new PermissionManager();
+    this.providerManager = new ProviderManager();
     this.llmService = null;
   }
 
@@ -84,11 +86,12 @@ class EdgePilotE2EDemo {
     // Step 3: Setup Planner
     console.log('🧠 Initializing Planner...');
     const resolver = new ToolCapabilityResolver(this.pluginManager);
-    const rulePlanner = new SimpleRulePlanner(resolver);
+    const memoryManager = new MemoryManager();
+    const rulePlanner = new SimpleRulePlanner(resolver, memoryManager);
     
     this.plannerManager = new PlannerManager();
     this.plannerManager.registerStrategy('rule-based', rulePlanner);
-    console.log('   ✓ Planner initialized with rule-based strategy\n');
+    console.log('   ✓ Planner initialized with rule-based strategy and memory integration\n');
   }
 
   async runMarkdownSummarizationDemo() {
@@ -248,41 +251,48 @@ class EdgePilotE2EDemo {
 
   async generateSummaryContent() {
     const testDataPath = path.join(__dirname, '../../demo-test-data');
-    const files = fs.readdirSync(testDataPath).filter(f => f.endsWith('.md'));
+    const files = fs.readdirSync(testDataPath).filter((f) => f.endsWith('.md'));
+
+    const fileDetails = files.map((file) => {
+      const filePath = path.join(testDataPath, file);
+      return {
+        path: filePath,
+        content: fs.readFileSync(filePath, 'utf-8')
+      };
+    });
+
+    const summaries = this.llmService
+      ? await this.llmService.summarizeMultiple(fileDetails, true)
+      : fileDetails.map((file) => {
+          const lines = file.content.split('\n');
+          const titleLine = lines.find((l) => l.startsWith('#'));
+          const mockSummary = lines
+            .filter((l) => l.trim().length > 0 && !l.startsWith('#'))
+            .slice(0, 3)
+            .join(' ')
+            .substring(0, 200);
+          return {
+            title: file.path,
+            summary: `${titleLine ? titleLine.replace(/^#+\s*/, '') + ' - ' : ''}${mockSummary}...`
+          };
+        });
 
     let content = '# Summary Report: Markdown Files\n\n';
     content += `Generated: ${new Date().toISOString()}\n\n`;
-    content += `## Overview\n\nThis report contains summaries of ${files.length} markdown files discovered in the directory.\n\n`;
+    content += `## Overview\n\nThis report contains summaries of ${summaries.length} markdown files discovered in the directory.\n\n`;
 
     content += '## Files Processed\n\n';
 
-    for (const file of files) {
-      const filePath = path.join(testDataPath, file);
-      const fileContent = fs.readFileSync(filePath, 'utf-8');
-
-      content += `### ${file}\n\n`;
-      
-      // Extract first meaningful line as title
-      const lines = fileContent.split('\n');
-      const titleLine = lines.find(l => l.startsWith('#'));
-      if (titleLine) {
-        content += `**Title:** ${titleLine.replace(/^#+\s*/, '')}\n\n`;
-      }
-
-      // Use first 3 lines as mock summary
-      const mockSummary = lines
-        .filter(l => l.trim().length > 0 && !l.startsWith('#'))
-        .slice(0, 3)
-        .join(' ')
-        .substring(0, 200);
-      content += `**Summary:** ${mockSummary}...\n\n`;
+    for (const summary of summaries) {
+      content += `### ${summary.title}\n\n`;
+      content += `**Summary:** ${summary.summary}\n\n`;
     }
 
     content += '---\n\n';
     content += '### Execution Details\n\n';
     content += '- **Architecture**: EdgePilot Runtime + Workflow Engine + Plugins + LLM\n';
     content += '- **Plugin Used**: FileSystem Plugin (org.edgepilot.filesystem)\n';
-    content += '- **LLM Provider**: Ollama (mistral model) - Architecture ready for integration\n';
+    content += `- **LLM Provider**: ${this.llmService ? 'Ollama' : 'fallback text generation'}\n`;
     content += '- **Workflow Engine**: Multi-step orchestration with context management\n';
     content += '- **Runtime**: Plugin execution with permission management and validation\n';
     content += '\n### Architecture Flow\n\n';
@@ -293,7 +303,7 @@ class EdgePilotE2EDemo {
     content += '5. Each step invokes Runtime Engine with tool request\n';
     content += '6. Runtime Engine manages plugins, validates inputs, enforces permissions\n';
     content += '7. FileSystem Plugin executes file operations (search, read, write)\n';
-    content += '8. LLM Provider available for future summarization enhancements\n';
+    content += `8. ${this.llmService ? 'LLM provider generated document summaries.' : 'Summary generation used fallback text extraction.'}\n`;
 
     return content;
   }
