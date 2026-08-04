@@ -25,6 +25,9 @@ export interface MemoryContextIds {
   workflowId?: string;
   conversationId?: string;
   sessionId?: string;
+  workflow?: string;
+  conversation?: string;
+  session?: string;
 }
 
 export interface MemoryManagerInterface {
@@ -32,7 +35,7 @@ export interface MemoryManagerInterface {
   conversation(conversationId: string): VariableStore;
   workflow(workflowId: string): VariableStore;
   global(): VariableStore;
-  context(ids: MemoryContextIds): MemoryContext;
+  context(ids: MemoryContextIds): any;
 }
 
 export interface StorageInterface {

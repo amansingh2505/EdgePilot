@@ -27,9 +27,13 @@ export class SimpleRulePlanner implements IPlanner {
     if (!ids) return {};
 
     const scope: PlannerMemoryScope = {};
-    if (ids.session) scope.session = this.memoryManager.session(ids.session);
-    if (ids.conversation) scope.conversation = this.memoryManager.conversation(ids.conversation);
-    if (ids.workflow) scope.workflow = this.memoryManager.workflow(ids.workflow);
+    const sessionId = ids.session ?? ids.sessionId;
+    const conversationId = ids.conversation ?? ids.conversationId;
+    const workflowId = ids.workflow ?? ids.workflowId;
+
+    if (sessionId) scope.session = this.memoryManager.session(sessionId);
+    if (conversationId) scope.conversation = this.memoryManager.conversation(conversationId);
+    if (workflowId) scope.workflow = this.memoryManager.workflow(workflowId);
     return scope;
   }
 

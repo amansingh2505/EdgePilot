@@ -2,8 +2,13 @@
   "name": "edgepilot-runtime",
   "version": "0.1.0",
   "private": true,
+  "bin": {
+    "edgepilot": "dist/cli.js"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "preedgepilot": "npm run build",
+    "edgepilot": "node dist/cli.js",
     "start": "node dist/examples/run-example.js",
     "start:workflow": "node dist/examples/run-workflow.js",
     "start:e2e-demo": "node dist/examples/run-e2e-demo.js",

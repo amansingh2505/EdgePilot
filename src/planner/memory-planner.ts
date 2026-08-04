@@ -25,9 +25,13 @@ export class MemoryAwarePlanner implements IPlanner {
     if (!ids) return {};
 
     const context: PlannerMemoryScope = {};
-    if (ids.session) context.session = this.memoryManager.session(ids.session);
-    if (ids.conversation) context.conversation = this.memoryManager.conversation(ids.conversation);
-    if (ids.workflow) context.workflow = this.memoryManager.workflow(ids.workflow);
+    const sessionId = ids.session ?? ids.sessionId;
+    const conversationId = ids.conversation ?? ids.conversationId;
+    const workflowId = ids.workflow ?? ids.workflowId;
+
+    if (sessionId) context.session = this.memoryManager.session(sessionId);
+    if (conversationId) context.conversation = this.memoryManager.conversation(conversationId);
+    if (workflowId) context.workflow = this.memoryManager.workflow(workflowId);
     return context;
   }
 
