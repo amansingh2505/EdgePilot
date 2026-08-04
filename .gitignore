@@ -1,8 +1,36 @@
 ﻿node_modules/
 dist/
 .env
+llm-config.json
 .venv/
 __pycache__/
 *.py[cod]
 .DS_Store
 .vscode/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*~
+*.bak
+*.orig
+
+# OS-specific files
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# IDE/editor files
+.idea/
+*.iml
+*.sublime-project
+*.sublime-workspace
+*.vs/*

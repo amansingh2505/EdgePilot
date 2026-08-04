@@ -1,18 +1,32 @@
-﻿name: CI
-on: [push]
+name: CI
+
+on:
+  push: {}
+  pull_request: {}
 
 jobs:
   build:
+    name: Build and smoke test
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Node
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-      - name: Install
-        run: |
-          npm ci || true
-      - name: Lint
-        run: |
-          echo "No lint configured yet"
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (TypeScript)
+        run: npm run build
+
+      - name: Smoke test (run example)
+        env:
+          CI: true
+        run: node dist/examples/run-example.js

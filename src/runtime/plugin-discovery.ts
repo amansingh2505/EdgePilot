@@ -5,6 +5,11 @@ import { PluginManager } from './plugin-manager';
 import { PermissionManager } from './permission-manager';
 import { ConsoleLogger } from './logger';
 
+// PluginDiscovery now enforces standardized plugin contract:
+// - plugin.json must exist
+// - manifest.entry must point to a Node module that exports the plugin wrapper
+// - the module must export { manifest, tools: [{ id, execute }], initialize?, shutdown? }
+
 export class PluginDiscovery {
   private ajv = new Ajv();
   private logger = new ConsoleLogger();
@@ -50,28 +55,46 @@ export class PluginDiscovery {
           this.logger.info(`Plugin ${manifest.id} declares permissions: ${declaredPermissions.join(', ')}. Not auto-granting.`);
         }
 
-        // attempt to load node modules if language == node and entry exists
-        let moduleObj: any = undefined;
-        if (!manifest.language || manifest.language === 'node') {
-          const entry = manifest.entry || 'index.js';
-          const entryPath = path.join(sub, entry);
-          if (fs.existsSync(entryPath)) {
-            try {
-              moduleObj = require(entryPath);
-            } catch (e) {
-              this.logger.warn(`Failed to require module ${entryPath}: ${e}`);
-            }
-          } else {
-            this.logger.info(`Entry ${entryPath} for plugin ${manifest.id} not found; registering manifest only`);
-          }
+        // Load entry module and enforce the wrapper contract
+        const entry = manifest.entry || 'index.js';
+        const entryPath = path.join(sub, entry);
+        if (!fs.existsSync(entryPath)) {
+          this.logger.error(`Entry ${entryPath} for plugin ${manifest.id} not found; skipping plugin`);
+          continue;
         }
 
+        let moduleObj: any;
+        try {
+          moduleObj = require(entryPath);
+        } catch (e) {
+          this.logger.error(`Failed to require module ${entryPath}: ${e}`);
+          continue;
+        }
+
+        // Expect moduleObj to be the wrapper
+        const wrapper = moduleObj.default || moduleObj;
+        if (!wrapper || !wrapper.manifest || !Array.isArray(wrapper.tools)) {
+          this.logger.error(`Plugin ${manifest.id} entry did not export a valid plugin wrapper (manifest + tools)`);
+          continue;
+        }
+
+        // Validate tools shape: each tool must have id and execute function
+        let ok = true;
+        for (const t of wrapper.tools) {
+          if (!t || !t.id || typeof t.execute !== 'function') {
+            this.logger.error(`Plugin ${manifest.id} tool ${t && t.id} missing execute() — plugin skipped`);
+            ok = false;
+            break;
+          }
+        }
+        if (!ok) continue;
+
         const pluginWrapper: any = {
-          manifest,
-          module: moduleObj,
-          tools: moduleObj && moduleObj.default && Array.isArray(moduleObj.default.tools) ? moduleObj.default.tools : (moduleObj && moduleObj.tools) || manifest.tools || [] ,
-          initialize: moduleObj && moduleObj.default && moduleObj.default.initialize ? moduleObj.default.initialize : (moduleObj && moduleObj.initialize),
-          shutdown: moduleObj && moduleObj.default && moduleObj.default.shutdown ? moduleObj.default.shutdown : (moduleObj && moduleObj.shutdown)
+          manifest: wrapper.manifest,
+          module: wrapper,
+          tools: wrapper.tools,
+          initialize: typeof wrapper.initialize === 'function' ? wrapper.initialize : undefined,
+          shutdown: typeof wrapper.shutdown === 'function' ? wrapper.shutdown : undefined
         };
 
         this.pm.register(pluginWrapper);

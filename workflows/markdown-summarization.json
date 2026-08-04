@@ -1,0 +1,75 @@
+{
+  "id": "markdown-summarization-workflow",
+  "name": "Markdown Files Summarization",
+  "description": "Discover all .md files in a directory, read each file, summarize with LLM, merge summaries, and create a report",
+  "version": "1.0.0",
+  "timeoutMs": 60000,
+  "steps": [
+    {
+      "id": "discover-markdown-files",
+      "type": "task",
+      "pluginId": "org.edgepilot.filesystem",
+      "toolId": "fs.search",
+      "input": {
+        "path": ".",
+        "pattern": "\\.md$",
+        "maxResults": 100
+      },
+      "description": "Search for all .md files in the working directory"
+    },
+    {
+      "id": "read-first-file",
+      "type": "task",
+      "pluginId": "org.edgepilot.filesystem",
+      "toolId": "fs.read",
+      "input": {
+        "path": "${markdownFiles.0.path}"
+      },
+      "condition": {
+        "path": "markdownFiles.0.path",
+        "operator": "exists"
+      },
+      "description": "Read the first discovered markdown file"
+    },
+    {
+      "id": "read-second-file",
+      "type": "task",
+      "pluginId": "org.edgepilot.filesystem",
+      "toolId": "fs.read",
+      "input": {
+        "path": "${markdownFiles.1.path}"
+      },
+      "condition": {
+        "path": "markdownFiles.1.path",
+        "operator": "exists"
+      },
+      "description": "Read the second discovered markdown file"
+    },
+    {
+      "id": "read-third-file",
+      "type": "task",
+      "pluginId": "org.edgepilot.filesystem",
+      "toolId": "fs.read",
+      "input": {
+        "path": "${markdownFiles.2.path}"
+      },
+      "condition": {
+        "path": "markdownFiles.2.path",
+        "operator": "exists"
+      },
+      "description": "Read the third discovered markdown file"
+    },
+    {
+      "id": "summarize-all-files",
+      "type": "task",
+      "pluginId": "org.edgepilot.filesystem",
+      "toolId": "fs.write",
+      "input": {
+        "path": "SUMMARY.md",
+        "content": "# Summary of Markdown Files\n\n## Overview\n\nThis report contains summaries of all discovered markdown files in the directory.\n\n## Files Processed\n\n${markdownFiles.length} markdown files were discovered and processed.\n\n## Summaries\n\n${fileSummaries}",
+        "overwrite": true
+      },
+      "description": "Write the merged summary to SUMMARY.md"
+    }
+  ]
+}

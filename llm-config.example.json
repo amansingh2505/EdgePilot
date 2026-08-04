@@ -1,0 +1,19 @@
+{
+  "defaultProvider": "ollama",
+  "defaultModel": "mistral",
+  "providers": [
+    {
+      "name": "ollama",
+      "type": "ollama",
+      "enabled": true,
+      "options": {
+        "baseUrl": "http://localhost:11434",
+        "model": "mistral",
+        "timeoutMs": 30000,
+        "maxTokens": 200,
+        "temperature": 0.3,
+        "streaming": true
+      }
+    }
+  ]
+}
