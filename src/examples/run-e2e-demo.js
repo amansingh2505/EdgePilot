@@ -33,6 +33,10 @@ const { ConsoleLogger } = require('../runtime/logger');
 const { RuntimeEngine } = require('../runtime/runtime-engine');
 const { PermissionManager } = require('../runtime/permission-manager');
 
+// Import LLM components
+const { ProviderManager } = require('../llm/manager');
+const { LLMService } = require('../llm/llm-service');
+
 // Import planner components
 const { PlannerManager } = require('../planner/planner-manager');
 const { SimpleRulePlanner } = require('../planner/simple-rule-planner');
@@ -66,7 +70,7 @@ class EdgePilotE2EDemo {
       console.log(`   ✓ FileSystem Plugin loaded (ID: ${fsPlugin.manifest.id})`);
 
       // Grant filesystem permissions
-      this.permissionManager.grantPermission(fsPlugin.manifest.id, 'filesystem');
+      this.permissionManager.grant(fsPlugin.manifest.id, ['filesystem']);
       console.log('   ✓ Filesystem permissions granted\n');
     } catch (error) {
       console.error('   ✗ Failed to load FileSystem Plugin:', error.message);
@@ -82,6 +86,23 @@ class EdgePilotE2EDemo {
       this.permissionManager
     );
     console.log('   ✓ Runtime Engine initialized\n');
+
+    // Step 2.5: Setup LLM Provider
+    console.log('🤖 Initializing LLM provider...');
+    const provider = this.providerManager.getProvider();
+    if (provider) {
+      const defaultModel = this.providerManager.getDefaultModel(provider.name) || 'mistral';
+      this.llmService = new LLMService(provider, defaultModel);
+      const healthy = await this.llmService.checkHealth();
+      if (!healthy) {
+        console.warn('⚠️  LLM provider is not healthy. Falling back to local summary fallback.');
+        this.llmService = null;
+      } else {
+        console.log(`   ✓ LLM provider initialized: ${provider.name} (${defaultModel})\n`);
+      }
+    } else {
+      console.warn('⚠️  No configured LLM provider found. Falling back to local summary fallback.\n');
+    }
 
     // Step 3: Setup Planner
     console.log('🧠 Initializing Planner...');

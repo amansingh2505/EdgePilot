@@ -3,6 +3,7 @@ import { loadLLMConfig, LLMConfig, ProviderConfig } from './config';
 import { ILLMProvider } from './provider';
 import { ConsoleLogger } from '../runtime/logger';
 import { OllamaProvider } from './ollama-provider';
+import { LocalProvider } from './local-provider';
 
 export class ProviderManager {
   private registry = new ProviderRegistry();
@@ -49,6 +50,21 @@ export class ProviderManager {
         const provider = new OllamaProvider({
           baseUrl: providerConfig.options?.baseUrl,
           timeoutMs: providerConfig.options?.timeoutMs
+        });
+
+        if (providerConfig.name && providerConfig.name !== provider.name) {
+          (provider as any).name = providerConfig.name;
+        }
+
+        this.register(provider);
+      } else if (providerConfig.type === 'local') {
+        const provider = new LocalProvider({
+          command: providerConfig.options?.command,
+          args: providerConfig.options?.args,
+          model: providerConfig.options?.model,
+          timeoutMs: providerConfig.options?.timeoutMs,
+          sendPromptViaStdin: providerConfig.options?.sendPromptViaStdin,
+          promptArg: providerConfig.options?.promptArg
         });
 
         if (providerConfig.name && providerConfig.name !== provider.name) {
