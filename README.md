@@ -136,7 +136,7 @@ Example flow:
 EdgePilot is provider-agnostic and currently supports **Ollama**.
 
 - Uses the existing provider framework via `ProviderManager`
-- Configured through `llm-config.json` or env vars
+- 
 - Supports health checks and streaming inference
 - Optimized for lightweight local models on edge devices
 
