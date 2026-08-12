@@ -18,7 +18,7 @@ EdgePilot provides a modular runtime for building AI agents in TypeScript and Ja
 - Designed for **local and edge execution** with lightweight runtime behavior.
 - Supports **provider-agnostic LLM integration**, currently wired to **Ollama**.
 - Includes an **extensible plugin system** for local tools such as filesystem operations.
-- Built to keep planning, memory, and execution loosely coupled for easier iteration and reuse.
+- Built to keep planning, memory, and execution loosely coupled for easier iteration.
 
 ## Key Features
 
