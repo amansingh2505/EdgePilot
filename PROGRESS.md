@@ -50,6 +50,6 @@ Current implementation status
 - `First End-to-End Demo`: implemented via `src/examples/run-e2e-demo.js`, which constructs a planner/workflow/runtime demo and writes `SUMMARY.md`.
 - `Ollama Integration`: provider support exists in `src/llm/ollama-provider.ts` and `src/llm/llm-service.ts`, but the running demo does not currently invoke Ollama for real summarization.
 - `Planner ↔ Memory Integration`: a memory module exists in `src/memory/*`, but planner output and workflow execution are not wired into the memory subsystem in the current code path.
-- `Dashboard`: not implemented; there is no dashboard code or UI component present in the repository.
+
 - `v1.0`: not reached; the runtime currently mentions versions like `0.1.0`, and there is no actual v1.0 milestone or release state in the codebase.
 
