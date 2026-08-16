@@ -7,7 +7,7 @@
 
 ## AI Runtime for Local and Edge AI Agents
 
-EdgePilot is an AI runtime designed to orchestrate agent-style workflows locally and on edge devices. It connects planner, workflow, runtime, plugin, memory, and LLM provider components to support lightweight AI automation without cloud dependence.
+EdgePilot is an AI runtime designed to orchestrate agent-style workflows locally and on edge devices. It connects planner, workflow, runtime, plugin, memory, and LLM provider components to support lightweight AI automation.
 
 ## Overview
 
