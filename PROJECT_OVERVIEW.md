@@ -113,7 +113,7 @@ From the repository root:
 - It generates a `PlanModel` with steps based on available tool capabilities.
 - It validates the plan using `PlanValidator`.
 - It optionally writes plan metadata into memory scopes.
-- It can add an LLM review if a configured provider is available.
+
 
 ### Workflow Generator
 
